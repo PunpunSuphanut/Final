@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import './Login.css';
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, loginError, switchToSignUp }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin(username);
+    onLogin(username, password);
   };
 
   return (
@@ -20,7 +20,9 @@ const Login = ({ onLogin }) => {
         Password:
         <input className="login-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
       </label>
+      {loginError && <p className="login-error">{loginError}</p>}
       <button className="login-button" type="submit">Login</button>
+      <p className="switch-form" onClick={switchToSignUp}>Don't have an account? Sign Up</p>
     </form>
   );
 };

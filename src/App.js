@@ -1,19 +1,41 @@
 import React, { useState } from 'react';
 import './App.css';
 import Login from './components/Login';
+import SignUp from './components/SignUp';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
 import SearchBar from './components/SearchBar';
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [comments, setComments] = useState({});
   const [searchResults, setSearchResults] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
+  const [loginError, setLoginError] = useState('');
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleLogin = (username) => {
-    setUser(username);
+  const handleLogin = (username, password) => {
+    const user = users.find(u => u.username === username && u.password === password);
+    if (user) {
+      setUser(username);
+      setLoginError('');
+    } else {
+      setLoginError('รหัสผ่านไม่ถูกต้อง');
+    }
+  };
+
+  const handleSignUp = (username, password) => {
+    setUsers([...users, { username, password }]);
+  };
+
+  const switchToSignUp = () => {
+    setIsSignUp(true);
+  };
+
+  const switchToLogin = () => {
+    setIsSignUp(false);
   };
 
   const handleLogout = () => {
@@ -65,7 +87,11 @@ const App = () => {
   return (
     <div className="container">
       {!user ? (
-        <Login onLogin={handleLogin} />
+        isSignUp ? (
+          <SignUp onSignUp={handleSignUp} switchToLogin={switchToLogin} />
+        ) : (
+          <Login onLogin={handleLogin} loginError={loginError} switchToSignUp={switchToSignUp} />
+        )
       ) : (
         <>
           <header>Welcome, {user}</header>
