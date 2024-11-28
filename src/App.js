@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
@@ -15,6 +15,7 @@ const App = () => {
   const [editingPost, setEditingPost] = useState(null);
   const [loginError, setLoginError] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogin = (username, password) => {
     const user = users.find(u => u.username === username && u.password === password);
@@ -22,7 +23,7 @@ const App = () => {
       setUser(username);
       setLoginError('');
     } else {
-      setLoginError('รหัสผ่านไม่ถูกต้อง');
+      setLoginError('รหัสผิดพลาด');
     }
   };
 
@@ -41,20 +42,20 @@ const App = () => {
   const handleLogout = () => {
     setUser(null);
   };
+const handleSavePost = (post) => {
+  setPosts((prevPosts) =>
+    prevPosts.some((p) => p.id === post.id)
+      ? prevPosts.map((p) => (p.id === post.id ? { ...post, user: p.user, likes: p.likes } : p))
+      : [...prevPosts, { ...post, user: user, likes: [] }]
+  );
+  setEditingPost(null);
+  handleSearch(searchQuery);
+};
 
-  const handleSavePost = (post) => {
-    setPosts((prevPosts) =>
-      prevPosts.some((p) => p.id === post.id)
-        ? prevPosts.map((p) => (p.id === post.id ? { ...post, user: p.user, likes: p.likes } : p))
-        : [...prevPosts, { ...post, user: user, likes: [] }]
-    );
-    setEditingPost(null);
-  };
-
-  const handleDeletePost = (postId) => {
-    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== postId));
-  };
-
+const handleDeletePost = (postId) => {
+  setPosts((prevPosts) => prevPosts.filter((p) => p.id !== postId));
+  handleSearch(searchQuery);
+};
   const handleEditPost = (post) => {
     setEditingPost(post);
   };
@@ -81,8 +82,18 @@ const App = () => {
   };
 
   const handleSearch = (query) => {
-    setSearchResults(posts.filter(post => post.title.toLowerCase().includes(query.toLowerCase())));
+    setSearchQuery(query);
+    if (query) {
+      const results = posts.filter(post => post.title.toLowerCase().includes(query.toLowerCase()));
+      setSearchResults(results);
+    } else {
+      setSearchResults(posts);
+    }
   };
+
+  useEffect(() => {
+    handleSearch(searchQuery);
+  }, [posts]);
 
   return (
     <div className="container">
